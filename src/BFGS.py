@@ -1,6 +1,5 @@
 import json
 import tensorflow as tf 
-from tensorflow import keras
 import time 
 import os
 import pickle
@@ -75,3 +74,4 @@ if save_results:
 
   with open(outputdir + 'params.pickle', 'wb') as handle:
     pickle.dump(params, handle, protocol=pickle.HIGHEST_PROTOCOL)
+

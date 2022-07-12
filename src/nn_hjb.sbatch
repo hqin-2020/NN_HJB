@@ -15,4 +15,4 @@ module load cuda/11.4
 
 source ~/venv/tensorflow-gpu/bin/activate
 
-srun python3 BFGS.py
+srun python3 Plots.py
