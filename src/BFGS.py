@@ -7,10 +7,10 @@ import pickle
 
 workdir = os.path.dirname(os.getcwd())
 model = 'ah_0135'
-srcdir = workdir + 'src/'
-datadir = workdir + 'data/' + model + '/'
-outputdir = workdir + 'output/' + model + '/'
-docdir = workdir + 'doc/' + model + '/'
+srcdir = workdir + '/src/'
+datadir = workdir + '/data/' + model + '/'
+outputdir = workdir + '/output/' + model + '/'
+docdir = workdir + '/doc/' + model + '/'
 
 json_location =  datadir + 'parameters.json'
 
