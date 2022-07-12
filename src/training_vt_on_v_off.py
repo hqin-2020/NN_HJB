@@ -52,8 +52,8 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
     dX2_LogXiH  = tf.concat([dW2_logXiH, dZ2_logXiH, dVtilde2_logXiH], axis=1)
 
     ## Compute drifts and volatilities. 
-    sigmaK      = tf.sqrt(sigmaVtilde)
     sigmaVtilde = params['sigmaVtilde'] * tf.sqrt(Vtilde)
+    sigmaK      = tf.sqrt(sigmaVtilde)
 
     muK         = Z + logQ / params['phi'] - params['delta']  - 0.5*tf.reduce_sum(sigmaK[:,0:3]*sigmaK[:,0:3], axis=1, keepdims=True)           ###### eq. (46)
     muZ         = params['lambda_Z'] * (params['Z_bar'] - Z)                                                                                    ###### eq. (53)
