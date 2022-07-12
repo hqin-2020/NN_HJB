@@ -13,6 +13,6 @@
 module load python/booth/3.8/3.8.5
 module load cuda/11.4
 
-container=/apps/containers/tensorflow-gpu/tensorflow-2.4.3-gpu-jupyter.sif
+source ~/venv/tensorflow-gpu/bin/activate
 
-srun singularity run --nv ${container} python3 BFGS.py
+srun python3 BFGS.py
