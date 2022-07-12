@@ -1,11 +1,4 @@
-/var/lib/slurmd/job9485494/slurm_script: line 16: /home/qhaomin/venv/tensorflow-gpu/bin/activate: No such file or directory
-2022-07-11 23:22:39.029686: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+/var/lib/slurmd/job9485497/slurm_script: line 16: /home/qhaomin/venv/tensorflow-gpu/bin/activate: No such file or directory
+2022-07-11 23:32:16.408083: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
 To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2022-07-11 23:22:39.944836: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1525] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 10794 MB memory:  -> device: 0, name: Tesla K80, pci bus id: 0000:0d:00.0, compute capability: 3.7
-Traceback (most recent call last):
-  File "Plots.py", line 67, in <module>
-    generateSurfacePlots(mfr_Results, nn_Results, fix_points, X, function_name, var_name, plot_content, height=800, width=1300, path = docdir)
-  File "/home/qhaomin/NN_HJB/src/plotting.py", line 42, in generateSurfacePlots
-    fig.add_trace(go.Surface(
-NameError: name 'go' is not defined
-srun: error: mgpu01: task 0: Exited with exit code 1
+2022-07-11 23:32:17.325028: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1525] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 10794 MB memory:  -> device: 0, name: Tesla K80, pci bus id: 0000:0d:00.0, compute capability: 3.7
