@@ -137,7 +137,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
 @tf.function 
 def HJB_loss_E(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, Z, Vtilde, params):
 
-    X = tf.concat([W,Z,V], axis=1)
+    X = tf.concat([W,Z,Vtilde], axis=1)
     ## Parse information
     nShocks      = params['sigmaK'].shape[0]
     nStates      = X.shape[1]
