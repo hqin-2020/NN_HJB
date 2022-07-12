@@ -12,6 +12,14 @@ srcdir = workdir + '/src/'
 datadir = workdir + '/data/' + model + '/'
 outputdir = workdir + '/output/' + model + '/'
 docdir = workdir + '/doc/' + model + '/'
+try:
+  os.mkdir(outputdir)
+except:
+  pass
+try:
+  os.mkdir(docdir)
+except:
+  pass
 
 json_location =  datadir + 'parameters.json'
 

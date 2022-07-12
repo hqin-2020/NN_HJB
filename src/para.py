@@ -68,15 +68,24 @@ def setModelParametersFromFile(paramsFromFile):
                                                 params['cov32'] * params['sigma_V_norm'],
                                                 params['cov33'] * params['sigma_V_norm'],
                                                 params['cov34'] * params['sigma_V_norm']], 0)
-  
+
+  params['sigmaVtilde']            = tf.concat([params['cov41'] * params['sigma_Vtilde_norm'], 
+                                                params['cov42'] * params['sigma_Vtilde_norm'],
+                                                params['cov43'] * params['sigma_Vtilde_norm'],
+                                                params['cov44'] * params['sigma_Vtilde_norm']], 0)
+
   ## Min and max of state variables
   ## min/max for V
   shape = 2 * params['lambda_V'] * params['V_bar']  /   (tf.pow(params['sigma_V_norm'],2));
   rate = 2 * params['lambda_V'] / (tf.pow(params['sigma_V_norm'],2));
   params['vMin'] = tf.constant(0.00001, dtype=tf.float64)
-
-  
   params['vMax'] = params['V_bar'] + params['numSds'] * tf.sqrt( shape / tf.pow(rate, 2));
+
+  ## min/max for V
+  shape = 2 * params['lambda_Vtilde'] * params['Vtilde_bar']  /   (tf.pow(params['sigma_Vtilde_norm'],2));
+  rate = 2 * params['lambda_Vtilde'] / (tf.pow(params['sigma_V_norm'],2));
+  params['VtildeMin'] = tf.constant(0.00001, dtype=tf.float64)
+  params['VtildeMax'] = params['Vtilde_bar'] + params['numSds'] * tf.sqrt( shape / tf.pow(rate, 2));
 
   ## min/max for Z
   zVar  = tf.pow(params['V_bar'] * params['sigma_Z_norm'], 2) / (2 * params['lambda_Z'])

@@ -31,7 +31,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
 
     ### Derivatives
     dW_logQ     = tf.gradients(logQ, W)[0];         dZ_logQ     = tf.gradients(logQ, Z)[0];         dV_logQ     = tf.gradients(logQ, V)[0];       dVtilde_logQ    = tf.gradients(logQ, Vtilde)[0]
-    dW2_logQ    = tf.gradients(dW_logQ, W)[0];      dZ2_logQ    = tf.gradients(dZ_logQ, Z)[0];      dV2_logQ    = tf.gradients(dV_logQ, V)[0];    dVtilde2_logQ      = tf.gradients(dVtilde_logQ, Vtilde)[0]
+    dW2_logQ    = tf.gradients(dW_logQ, W)[0];      dZ2_logQ    = tf.gradients(dZ_logQ, Z)[0];      dV2_logQ    = tf.gradients(dV_logQ, V)[0];    dVtilde2_logQ   = tf.gradients(dVtilde_logQ, Vtilde)[0]
     
     dW_Q        = tf.gradients(Q, W)[0];            dZ_Q        = tf.gradients(Q, Z)[0];            dV_Q        = tf.gradients(Q, V)[0];          dVtilde_Q       = tf.gradients(Q, Vtilde)[0]
     dW2_Q       = tf.gradients(dW_Q, W)[0];         dZ2_Q       = tf.gradients(dZ_Q, Z)[0];         dV2_Q       = tf.gradients(dV_Q, V)[0];       dVtilde2_Q      = tf.gradients(dVtilde_Q, Vtilde)[0]
@@ -94,7 +94,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
                                             + ((params['gamma_h'] - 1) * dX_logXiH[:,3:4] - (params['gamma_e'] - 1) * dX_logXiE[:,3:4] ) * sigmaVtilde[:,s:s+1])
                                                                                                                                                 ###### last term in eq. (63)
     deltaE              = params['gamma_e'] * chi * kappa / W * (sigmaRNormSq + Vtilde) - \
-                          params['gamma_h'] * (1 - chi * kappa) / (1 - W) * sigmaRNormSq - sigmaRsigmaXDerivs                                         ###### eq. (63)
+                          params['gamma_h'] * (1 - chi * kappa) / (1 - W) * sigmaRNormSq - sigmaRsigmaXDerivs                                   ###### eq. (63)
     deltaH              = params['chiUnderline'] * deltaE - (params['a_e'] - params['a_h']) / tf.exp(logQ)                                      ###### eq. (64)
     
     ## Compute r and Pi

@@ -2,7 +2,7 @@ import json
 import os
 import numpy as np
 import tensorflow as tf
-from para import *
+from para_4d import *
 from training_4d import *
 from plotting_4d import *
 

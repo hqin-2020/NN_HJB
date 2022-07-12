@@ -62,10 +62,6 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
     muK          = Z + logQ / params['phi'] - params['delta']  - 0.5*tf.reduce_sum(sigmaK[:,0:3]*sigmaK[:,0:3], axis=1, keepdims=True)          ###### eq. (46)
     muZ         = params['lambda_Z'] * (params['Z_bar'] - Z)                                                                                    ###### eq. (53)
     muV         = params['lambda_V'] * (params['V_bar'] - V)                                                                                    ###### eq. (53)
-    
-    ## Compute equilibrium objects
-    # I            = logQ / params['phi']                  ###### Def. of iota
-    # beta_h       = (1 - kappa) / (1.0 - X[:,order_states['W']]) ###### This is never used
 
     ## Compute chi
     sigmaXtilde         = [sigmaZ, sigmaV]                                                                                                      ###### eq. (69)
