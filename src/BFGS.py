@@ -4,6 +4,8 @@ from tensorflow import keras
 import time 
 import os
 import pickle
+from para import *
+from training import *
 
 workdir = os.path.dirname(os.getcwd())
 model = 'ah_0135'
