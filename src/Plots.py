@@ -57,6 +57,7 @@ r_NN = variables['r']
 Pi_h_NN = variables['Pi']
 Pi_e_NN = variables['Pi_e']
 sigmaR_NN = variables['sigmaR']
+q_NN, r_NN, Pi_h_NN, Pi_e_NN, sigmaR_NN = q_NN.numpy(), r_NN.numpy(), Pi_h_NN.numpy(), Pi_e_NN.numpy(), sigmaR_NN.numpy()
 
 mfr_Results   = [logXiE, logXiH, kappa]
 nn_Results    = [logXiE_NNs, logXiH_NNs, kappa_NNs]  
