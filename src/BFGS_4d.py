@@ -3,8 +3,8 @@ import tensorflow as tf
 import time 
 import os
 import pickle
-from para import *
-from training import *
+from para_4d import *
+from training_4d import *
 
 workdir = os.path.dirname(os.getcwd())
 model = 'ah_0135'

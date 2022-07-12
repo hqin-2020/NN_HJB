@@ -3,8 +3,8 @@ import os
 import numpy as np
 import tensorflow as tf
 from para import *
-from training import *
-from plotting import *
+from training_4d import *
+from plotting_4d import *
 
 workdir = os.path.dirname(os.getcwd())
 model = 'ah_0135'
