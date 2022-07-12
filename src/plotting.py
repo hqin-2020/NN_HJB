@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 import os
 
 def generateSurfacePlots(mfr_Results, nn_Results, fixed_points, X, function_name, var_name, plot_content = 'Value Function, Policy Function' ,float_formatter = "{0:.4f}", height=800, width=1200, path = os.path.dirname(os.getcwd()) + '/doc/'):
