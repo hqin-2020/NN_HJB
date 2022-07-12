@@ -69,10 +69,10 @@ def setModelParametersFromFile(paramsFromFile):
                                                 params['cov33'] * params['sigma_V_norm'],
                                                 params['cov34'] * params['sigma_V_norm']], 0)
 
-  params['sigmaVtilde']            = tf.concat([params['cov41'] * params['sigma_Vtilde_norm'], 
-                                                params['cov42'] * params['sigma_Vtilde_norm'],
-                                                params['cov43'] * params['sigma_Vtilde_norm'],
-                                                params['cov44'] * params['sigma_Vtilde_norm']], 0)
+  params['sigmaVtilde']            = tf.concat([params['cov31'] * params['sigma_Vtilde_norm'], 
+                                                params['cov32'] * params['sigma_Vtilde_norm'],
+                                                params['cov33'] * params['sigma_Vtilde_norm'],
+                                                params['cov34'] * params['sigma_Vtilde_norm']], 0)
 
   ## Min and max of state variables
   ## min/max for V
