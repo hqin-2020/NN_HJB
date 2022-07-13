@@ -53,6 +53,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
 
     ## Compute drifts and volatilities. 
     sigmaVtilde = params['sigmaVtilde'] * tf.sqrt(Vtilde)
+    sigmaZ = params['sigmaVtilde'] * tf.constant(0, dtype=tf.float64)
     sigmaK      = tf.sqrt(sigmaVtilde)
 
     muK         = Z + logQ / params['phi'] - params['delta']  - 0.5*tf.reduce_sum(sigmaK[:,0:3]*sigmaK[:,0:3], axis=1, keepdims=True)           ###### eq. (46)
@@ -60,13 +61,13 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
     muVtilde    = params['lambda_Vtilde'] * (params['Vtilde_bar'] - Vtilde)                                                                     ###### eq. (53)
 
     ## Compute chi
-    sigmaXtilde         = [sigmaVtilde]                                                                                                         ###### eq. (69)
-    Dx                  = sigmaK + (sigmaVtilde*dVtilde_logQ)                                                                                   ###### eq. (70)
+    sigmaXtilde         = [sigmaZ, sigmaVtilde]                                                                                                 ###### eq. (69)
+    Dx                  = sigmaK + (sigmaZ*dZ_logQ + sigmaVtilde*dVtilde_logQ)                                                                  ###### eq. (70)
     DxNormSq            = tf.reduce_sum(Dx * Dx, axis = 1, keepdims=True)                                                                  
     DzetaOmega          = W*(1-W)*DxNormSq * ( (params['gamma_h'] - 1.0) * dW_logXiH - (params['gamma_e'] - 1.0) * dW_logXiE )                  ###### eq. (71)
     DzetaX              = tf.zeros(DzetaOmega.shape, dtype=tf.float64)
     for s in range(nShocks):
-      for n in range(1,nStates-1):
+      for n in range(1,nStates):
         DzetaX   = DzetaX + Dx[:,s:s+1] * (sigmaXtilde[n-1][:,s:s+1] * ((params['gamma_h'] - 1.0) * dX_LogXiH[:,n:n+1] - (params['gamma_e'] - 1.0) * dX_LogXiE[:,n:n+1] ) ) 
     DzetaX              = DzetaX * W* (1 - W)                                                                                                   ###### eq. (72)
     chiN                = DzetaX - W* (1 - W) * (params['gamma_e'] - params['gamma_h']) * DxNormSq
@@ -75,7 +76,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
     chi                 = tf.math.maximum(chi, params['chiUnderline'])                                                                          ###### eq. (68)
     
     ## Compute deltaE and deltaH
-    sigmaQ              = ((chi * kappa - W) * sigmaK * dW_logQ + sigmaVtilde * dVtilde_logQ)/(1.0 -  (chi * kappa - W ) * dW_logQ)             ###### eq. (57)
+    sigmaQ              = ((chi * kappa - W) * sigmaK * dW_logQ + sigmaZ * dZ_logQ + sigmaVtilde * dVtilde_logQ)/(1.0 -  (chi * kappa - W ) * dW_logQ)    ###### eq. (57)
     sigmaR              = sigmaK  + sigmaQ                                                                                                      ###### eq. (58) simplified
     sigmaW              = (chi * kappa - W) * sigmaR                                                                                            ###### eq. (52)
     sigmaRNormSq        = tf.reduce_sum(sigmaR * sigmaR, axis = 1, keepdims=True) 
@@ -83,6 +84,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
     for s in range(nShocks):
       sigmaRsigmaXDerivs = sigmaRsigmaXDerivs \
                         + sigmaR[:,s:s+1] * (((params['gamma_h'] - 1) * dX_LogXiH[:,0:1] - (params['gamma_e'] - 1) * dX_LogXiE[:,0:1] ) * sigmaW[:,s:s+1] \
+                                            + ((params['gamma_h'] - 1) * dX_LogXiH[:,1:2] - (params['gamma_e'] - 1) * dX_LogXiE[:,1:2] ) * sigmaZ[:,s:s+1] \
                                             + ((params['gamma_h'] - 1) * dX_LogXiH[:,2:3] - (params['gamma_e'] - 1) * dX_LogXiE[:,2:3] ) * sigmaVtilde[:,s:s+1] ) 
                                                                                                                                                 ###### last term in eq. (63)
     deltaE              = params['gamma_e'] * chi * kappa / W * sigmaRNormSq - \
@@ -91,9 +93,9 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
     
     ## Compute r and Pi
     Pi      = params['gamma_h'] * ( (1.0 - chi * kappa) / (1.0 - W)  ) * sigmaR + \
-              (params['gamma_h'] - 1.0) * (sigmaW * dW_logXiH + sigmaVtilde * dVtilde_logXiH )                                                  ###### eq. (62)
+              (params['gamma_h'] - 1.0) * (sigmaW * dW_logXiH + sigmaZ * dZ_logXiH + sigmaVtilde * dVtilde_logXiH )                             ###### eq. (62)
     Pi_e    =  (params['gamma_e'] * chi * kappa / W ) * sigmaR + \
-                (params['gamma_e'] - 1.0) * (sigmaW * dW_logXiE + sigmaVtilde * dVtilde_logXiE )
+                (params['gamma_e'] - 1.0) * (sigmaW * dW_logXiE + sigmaZ * dZ_logXiE + sigmaVtilde * dVtilde_logXiE )
     betaE   = chi * kappa / W
     betaH   = (1 - kappa) / (1 - W)    
     muW     = (W * (1.0 - W)) * ( tf.pow(params['rho_h'], 1.0 / params['psi_h'] ) * tf.pow(xiH, 1 - 1.0 / params['psi_h'] ) 
@@ -101,9 +103,10 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
                                 + tf.reduce_sum(sigmaR * (Pi - sigmaR),axis=1, keepdims=True) * (chi * kappa - W) + params['lambda_d'] * (params['nu_newborn'] - W) 
                                                                                                                                                 ###### eq. (51)
     muX     = tf.concat([muW, muZ, muVtilde], axis=1)                                                                                           ###### eq. (53)
-    sigmaX  = [sigmaW, sigmaVtilde]                                                                                                             ###### eq. (54)
+    sigmaX  = [sigmaW, sigmaZ, sigmaVtilde]                                                                                                     ###### eq. (54)
     muQ     = 1 / Q * tf.reduce_sum(muX*dX_Q, axis=1, keepdims=True) + \
                 1 / (2*Q) * ( tf.reduce_sum(sigmaW*sigmaW, axis=1, keepdims=True)*dW2_Q   +
+                                tf.reduce_sum(sigmaZ*sigmaZ, axis=1, keepdims=True)*dZ2_Q   + 
                                 tf.reduce_sum(sigmaVtilde*sigmaVtilde, axis=1, keepdims=True)*dVtilde2_Q)   #+
                                 # 2*tf.reduce_sum(sigmaW*sigmaV, axis=1, keepdims=True)*dWdV_Q + 
                                 # 2*tf.reduce_sum(sigmaW*sigmaZ, axis=1, keepdims=True)*dWdZ_Q +  
@@ -124,7 +127,7 @@ def calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, 
                  'dX_LogXiE' : dX_LogXiE,   'dX_LogXiH' : dX_LogXiH,\
                  'dX2_LogXiE': dX2_LogXiE,  'dX2_LogXiH': dX2_LogXiH,\
                  'kappa'     : kappa,       'Q'         : Q,\
-                 'sigmaVtilde' : sigmaVtilde,\
+                 'sigmaZ'    : sigmaZ,      'sigmaVtilde' : sigmaVtilde,\
                  'chi'       : chi,         'Pi_e'      : Pi_e,\
                  'sigmaR'    : sigmaR,      'sigmaW'    : sigmaW,\
                  'sigmaRNormSq' : sigmaRNormSq, 'sigmaRsigmaXDerivs' : sigmaRsigmaXDerivs,\
@@ -191,6 +194,63 @@ def HJB_loss_E(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W
     return HJB_E
 
 @tf.function 
+def HJB_loss_E(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, Z, Vtilde, params):
+
+    X = tf.concat([W,Z,Vtilde], axis=1)
+    ## Parse information
+    nShocks      = params['sigmaK'].shape[0]
+    nStates      = X.shape[1]
+    batchSize    = X.shape[0]
+    
+    variables = calc_var(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, Z, Vtilde, params)
+    xiE = variables['xiE']
+    logXiE = variables['logXiE']
+    dX_LogXiE = variables['dX_LogXiE']
+    dX2_LogXiE = variables['dX2_LogXiE']
+    deltaE = variables['deltaE']
+    muX = variables['muX']
+    Pi = variables['Pi']
+    r = variables['r']
+    sigmaW = variables['sigmaW']
+    sigmaZ = variables['sigmaZ']
+    sigmaVtilde = variables['sigmaVtilde']
+    sigmaX = variables['sigmaX']
+    sigmaR = variables['sigmaR']
+    sigmaRNormSq = variables['sigmaRNormSq']
+
+    #### Constant term and xiE
+    Fe             = tf.zeros([batchSize,1], dtype=tf.float64)
+
+    if params['psi_e'] == 1:
+      Fe           = Fe + (-logXiE + tf.math.log(params['rho_e'])) * params['rho_e'] - params['rho_e']
+    else:
+      Fe           = Fe + params['psi_e'] / (1 - params['psi_e']) * tf.pow(params['rho_e'], 1 / params['psi_e'] ) \
+      * tf.pow(xiE, 1 - 1 / params['psi_e']) - params['rho_e'] / (1 - params['psi_e'])
+
+    Fe             = Fe + r + tf.square(deltaE + tf.reduce_sum(sigmaR * Pi,axis=1, keepdims=True)) / (2 * params['gamma_e'] * sigmaRNormSq) ###### eq. (39)
+
+    for s in range(nShocks):
+      for s_sub in range(nShocks):
+        Fe = Fe + ( sigmaX[0][:,s:s+1] * dX_LogXiE[:,0:1] + sigmaX[1][:,s:s+1] * dX_LogXiE[:,1:2] + sigmaX[2][:,s:s+1] * dX_LogXiE[:,2:3] ) \
+            * ( sigmaR[:,s:s+1] * sigmaR[:,s_sub:s_sub+1] * (1.0 - params['gamma_e']) / ( sigmaRNormSq  ) + (params['gamma_e']) * (s == s_sub)) \
+            * ( sigmaW[:,s_sub:s_sub+1] * dX_LogXiE[:,0:1] + sigmaZ[:,s_sub:s_sub+1] * dX_LogXiE[:,1:2] + sigmaVtilde[:,s_sub:s_sub+1] * dX_LogXiE[:,2:3]) * \
+            (1.0 - params['gamma_e']) / params['gamma_e'] * 0.5       ###### eq. (39)
+
+    #### First and second partials
+    firstPartialsE   = tf.zeros([batchSize, 1], dtype=tf.float64)
+    secondPartialsE  = tf.zeros([batchSize, 1], dtype=tf.float64)
+
+    for n in range(nStates): ###### eq. (39)
+      firstPartialsE    = firstPartialsE + (muX[:,n:n+1]+ (1 - params['gamma_e'] ) / params['gamma_e'] * \
+      tf.reduce_sum(sigmaX[n] * sigmaR, axis=1, keepdims=True)* (deltaE + tf.reduce_sum(Pi * sigmaR,axis=1, keepdims=True)) / sigmaRNormSq ) * dX_LogXiE[:,n:n+1]
+
+      secondPartialsE   = secondPartialsE + 0.5 * tf.reduce_sum(sigmaX[n] * sigmaX[n], axis=1, keepdims=True) * dX2_LogXiE[:,n:n+1]
+
+    HJB_E  = Fe + firstPartialsE + secondPartialsE
+
+    return HJB_E
+
+@tf.function 
 def HJB_loss_H(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W, Z, Vtilde, params):
 
     X = tf.concat([W,Z,Vtilde], axis=1)
@@ -208,6 +268,7 @@ def HJB_loss_H(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W
     Pi = variables['Pi']
     r = variables['r']
     sigmaW = variables['sigmaW']
+    sigmaZ = variables['sigmaZ']
     sigmaVtilde = variables['sigmaVtilde']
     sigmaX = variables['sigmaX']
 
@@ -224,7 +285,7 @@ def HJB_loss_H(valueFunctionLogH, valueFunctionLogE, constraintsFunctionKappa, W
 
     for s in range(nShocks): ###### eq. (38)
       Fh           = Fh + 0.5 * (1.0 - params['gamma_h']) / params['gamma_h'] * \
-      tf.square(sigmaW[:,s:s+1] * dX_LogXiH[:,0:1] + sigmaVtilde[:,s:s+1] * dX_LogXiH[:,2:3] )
+      tf.square(sigmaW[:,s:s+1] * dX_LogXiH[:,0:1] + sigmaZ[:,s:s+1] * dX_LogXiH[:,1:2] + sigmaVtilde[:,s:s+1] * dX_LogXiH[:,2:3] )
 
     #### First and second partials
     firstPartialsH   = tf.zeros([batchSize, 1], dtype=tf.float64)
